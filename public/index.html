@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,10 +31,15 @@
                             <option value="행동지침">행동지침</option>
                         </select>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="gemContent">추출한 핵심 아이디어 (Gem Content)</label>
                         <textarea id="gemContent" name="gemContent" rows="5" placeholder="핵심 개념이나 문구를 입력하세요. (예: 시스템이 목표보다 중요하다)" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gemTags">태그 (쉼표로 구분)</label>
+                        <input type="text" id="gemTags" name="gemTags" placeholder="예: #생산성, #마케팅, #심리학">
                     </div>
 
                     <button type="submit" class="btn btn-primary">보석 추출하기 (Extract Gem)</button>
@@ -42,18 +47,72 @@
             </section>
 
             <section class="gem-list-section">
-                <h2>추출된 아이디어 목록</h2>
+                <h2>오늘 리뷰할 아이디어</h2>
+                <ul id="review-list">
+                    </ul>
+            </section>
+
+            <section class="gem-list-section">
+                <div class="section-header">
+                    <h2>추출된 아이디어 목록</h2>
+                    <button id="synthesis-mode-btn" class="btn btn-secondary">지식 연결 모드</button>
+                </div>
                 <ul id="gems-list">
                     <li><p>추출된 보석이 없습니다. 첫 아이디어를 제련해보세요!</p></li>
                 </ul>
+                <div id="synthesis-action-bar" class="synthesis-actions" style="display: none;">
+                    <button id="execute-synthesis-btn" class="btn btn-primary">선택한 Gem 2개로 지식 연결하기</button>
+                    <button id="cancel-synthesis-btn" class="btn">취소</button>
+                </div>
             </section>
         </main>
 
         <footer>
             <p>&copy; <span id="current-year">2025</span> Metis OS. Built with Vanilla JS.</p>
-            <p><a href="#">Prompt Vault에서!</a></p>
+            <p><a href="#" id="vault-link">프롬프트 저장소 (Prompt Vault)</a></p>
         </footer>
     </div>
+
+    <div id="prompt-vault-modal" class="modal">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>프롬프트 저장소</h2>
+                <button id="close-modal-btn" class="close-btn">&times;</button>
+            </header>
+            <div class="modal-body">
+                <form id="prompt-form">
+                    <input type="hidden" id="prompt-id">
+                    <div class="form-group">
+                        <label for="prompt-name">프롬프트 이름</label>
+                        <input type="text" id="prompt-name" placeholder="예: 어린아이처럼 설명하기" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="prompt-content">프롬프트 내용</label>
+                        <textarea id="prompt-content" rows="4" placeholder="실제 실행될 프롬프트 내용을 입력하세요. (예: 다음 내용을 어린아이도 이해할 수 있도록 쉬운 비유 1개로 설명해줘: {{GEM_CONTENT}})" required></textarea>
+                        <small>{{GEM_CONTENT}} 부분은 제련 시 실제 아이디어 내용으로 자동 대체됩니다.</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">프롬프트 저장</button>
+                </form>
+                <div class="prompt-list-section">
+                    <h3>저장된 프롬프트</h3>
+                    <ul id="prompt-list">
+                        </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="forge-options-modal" class="modal">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>어떤 프롬프트로 제련할까요?</h2>
+                 <button id="close-forge-modal-btn" class="close-btn">&times;</button>
+            </header>
+            <div class="modal-body" id="forge-prompt-list">
+                </div>
+        </div>
+    </div>
+
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
