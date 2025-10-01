@@ -159,11 +159,15 @@ const renderPrompts = (prompts) => {
 
 // --- API Call with Google Gemini ---
 const callGeminiApi = (prompt) => {
-  // ** 중요 **: 이 키는 Firebase용 키가 아니라, Google AI Studio에서 발급받은 너의 Gemini API 키여야 해.
-  const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"; //  <-- 이 부분을 너의 실제 Gemini 키로 바꿔줘.
+  // =================================================================================
+  // [수정 1] 여기에 너의 실제 Gemini API 키를 넣어줘!
+  // Google AI Studio (https://aistudio.google.com/app/apikey) 에서 발급받은 키를
+  // 아래 "YOUR_GEMINI_API_KEY" 부분에 복사해서 붙여넣어야 해.
+  // =================================================================================
+  const GEMINI_API_KEY = "AIzaSyDSpMk7hbDUnE1GHIbdit28lHBTGU4XMx0";
   
-  // [수정] 네가 알려준 'gemini-2.5-pro' 모델로 URL을 수정했어.
-  const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${GEMINI_API_KEY}`;
+  // [수정 2] 모델 이름을 현재 사용 가능한 공식 최신 모델로 바로잡았어.
+  const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${GEMINI_API_KEY}`;
 
   return fetch(GEMINI_API_URL, {
     method: 'POST',
