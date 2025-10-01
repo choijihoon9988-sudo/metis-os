@@ -1,6 +1,5 @@
 // --- Firebase Initialization ---
 const firebaseConfig = {
-  // *** 여기에 너의 새 API 키를 적용했어 ***
   apiKey: "AIzaSyDSpMk7hbDUnE1GHIbdit28lHBTGU4XMx0", 
   authDomain: "metis-os-app.firebaseapp.com",
   projectId: "metis-os-app",
@@ -76,16 +75,13 @@ const renderGems = (gems) => {
     li.className = 'gem-item';
     li.dataset.id = gem.id;
 
-    // Synthesis Mode Styling
     if (isSynthesisMode) li.classList.add('synthesis-mode');
     if (selectedGems.includes(gem.id)) li.classList.add('selected');
 
-    // Tags HTML
     const tagsHTML = gem.tags && gem.tags.length > 0
       ? `<div class="gem-item_tags">${gem.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>`
       : '';
 
-    // Forged Content HTML
     const forgedContentHTML = gem.forgedContent ? `
       <div class="forged-result">
         <p>${gem.forgedContent.replace(/\n/g, '<br>')}</p>
@@ -97,7 +93,6 @@ const renderGems = (gems) => {
       </div>
     ` : '';
     
-    // Action Button HTML
     const actionButtonHTML = () => {
       if (gem.status === 'forging') {
         return '<div class="spinner"></div> <span>제련 중...</span>';
@@ -164,8 +159,11 @@ const renderPrompts = (prompts) => {
 
 // --- API Call with Google Gemini ---
 const callGeminiApi = (prompt) => {
-  const GEMINI_API_KEY = "AIzaSyDSpMk7hbDUnE1GHIbdit28lHBTGU4XMx0"; 
-  const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+  // ** 중요 **: 이 키는 Firebase용 키가 아니라, Google AI Studio에서 발급받은 너의 Gemini API 키여야 해.
+  const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"; //  <-- 이 부분을 너의 실제 Gemini 키로 바꿔줘.
+  
+  // [수정] 네가 알려준 'gemini-2.5-pro' 모델로 URL을 수정했어.
+  const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${GEMINI_API_KEY}`;
 
   return fetch(GEMINI_API_URL, {
     method: 'POST',
@@ -173,7 +171,12 @@ const callGeminiApi = (prompt) => {
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
   })
   .then(response => {
-    if (!response.ok) throw new Error('API request failed');
+    if (!response.ok) {
+        return response.json().then(errorData => {
+            console.error('API Error Details:', errorData);
+            throw new Error(`API request failed: ${errorData.error.message}`);
+        });
+    }
     return response.json();
   })
   .then(data => data.candidates[0].content.parts[0].text.trim());
@@ -182,7 +185,6 @@ const callGeminiApi = (prompt) => {
 
 // --- Event Handlers ---
 
-// Gem Extraction
 const handleExtractGem = (event) => {
   event.preventDefault();
   const formData = new FormData(gemExtractorForm);
@@ -194,7 +196,7 @@ const handleExtractGem = (event) => {
     type: formData.get('gemType'),
     tags: tags,
     forgedContent: null,
-    status: 'idle', // idle | forging
+    status: 'idle',
     copied: false,
     reviewLevel: 0,
     reviewAt: getNextReviewDate(0),
@@ -206,7 +208,6 @@ const handleExtractGem = (event) => {
   }).catch(error => console.error("Error adding gem: ", error));
 };
 
-// Main List Click Actions (Forge, Copy, Select for Synthesis)
 const handleListClick = async (event) => {
   const targetButton = event.target.closest('button[data-action]');
   if (targetButton) {
@@ -216,7 +217,6 @@ const handleListClick = async (event) => {
     return;
   }
   
-  // Synthesis Mode Click
   if (isSynthesisMode) {
       const targetItem = event.target.closest('.gem-item');
       if (targetItem) {
@@ -235,14 +235,12 @@ const handleButtonAction = async (action, gemId) => {
         const forgePromptList = document.getElementById('forge-prompt-list');
         forgePromptList.innerHTML = '';
         
-        // Add default prompt
         const defaultOption = document.createElement('button');
         defaultOption.className = 'btn btn-secondary forge-option-btn';
         defaultOption.textContent = '기본 프롬프트 (액션 아이템 3가지)';
         defaultOption.onclick = () => handleForge(gemId, null);
         forgePromptList.appendChild(defaultOption);
 
-        // Add custom prompts
         prompts.docs.forEach(doc => {
             const prompt = { id: doc.id, ...doc.data() };
             const option = document.createElement('button');
@@ -283,11 +281,11 @@ const handleForge = async (gemId, promptTemplate) => {
         await gemRef.update({ forgedContent, status: 'idle' });
     } catch (error) {
         console.error("Forging failed:", error);
+        alert(`제련에 실패했습니다: ${error.message}`);
         await gemRef.update({ status: 'idle' });
     }
 };
 
-// Review List Actions
 const handleReviewListClick = async (event) => {
     const target = event.target.closest('button[data-action="mark-reviewed"]');
     if (!target) return;
@@ -304,7 +302,6 @@ const handleReviewListClick = async (event) => {
     await gemRef.update({ reviewLevel: nextLevel, reviewAt: nextReviewDate });
 };
 
-// Prompt Vault Handlers
 const handlePromptFormSubmit = (event) => {
     event.preventDefault();
     const id = promptIdInput.value;
@@ -319,7 +316,11 @@ const handlePromptFormSubmit = (event) => {
     } else {
         promptsCollection.add(promptData).then(() => promptForm.reset());
     }
+    promptIdInput.value = '';
+    promptNameInput.value = '';
+    promptContentInput.value = '';
 };
+
 
 const handlePromptListClick = (event) => {
     const target = event.target;
@@ -345,11 +346,9 @@ const handlePromptListClick = (event) => {
     }
 };
 
-
-// Synthesis Handlers
 const toggleSynthesisMode = () => {
     isSynthesisMode = !isSynthesisMode;
-    selectedGems = []; // Reset selection when mode changes
+    selectedGems = [];
     synthesisActionBar.style.display = isSynthesisMode ? 'flex' : 'none';
     synthesisModeBtn.textContent = isSynthesisMode ? '취소' : '지식 연결 모드';
     gemsList.querySelectorAll('.gem-item').forEach(item => {
@@ -368,7 +367,6 @@ const toggleGemSelection = (gemId) => {
         }
     }
     
-    // Update visual state
     gemsList.querySelectorAll('.gem-item').forEach(item => {
         item.classList.toggle('selected', selectedGems.includes(item.dataset.id));
     });
@@ -398,6 +396,7 @@ const executeSynthesis = async () => {
             2. "${gem2.title}": ${gem2.content}
 
             이 두 아이디어의 공통 원리를 찾아내고, 이들을 통합하여 하나의 새로운 통찰 또는 실행 가능한 프레임워크를 생성해주세요.
+            결과는 제목과 내용으로 구분하고, 제목은 [융합]이라는 말머리를 붙여줘.
         `;
 
         const synthesizedContent = await callGeminiApi(synthesisPrompt);
@@ -406,7 +405,7 @@ const executeSynthesis = async () => {
             title: `[융합] ${gem1.title} & ${gem2.title}`,
             content: synthesizedContent,
             type: '프레임워크',
-            tags: [...new Set([...(gem1.tags || []), ...(gem2.tags || [])])], // Merge and deduplicate tags
+            tags: [...new Set([...(gem1.tags || []), ...(gem2.tags || [])])],
             forgedContent: null,
             status: 'idle',
             copied: false,
@@ -418,24 +417,20 @@ const executeSynthesis = async () => {
 
     } catch (error) {
         console.error("Synthesis failed:", error);
-        alert('지식 연결에 실패했습니다.');
+        alert(`지식 연결에 실패했습니다: ${error.message}`);
     } finally {
-        toggleSynthesisMode(); // Exit synthesis mode after completion
+        toggleSynthesisMode();
     }
 };
 
-// --- Initialization ---
 const init = () => {
-  // Set theme
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
 
-  // Attach event listeners
   gemExtractorForm.addEventListener('submit', handleExtractGem);
   gemsList.addEventListener('click', handleListClick);
   reviewList.addEventListener('click', handleReviewListClick);
 
-  // Modals
   vaultLink.addEventListener('click', () => promptVaultModal.style.display = 'block');
   closeModalBtn.addEventListener('click', () => promptVaultModal.style.display = 'none');
   closeForgeModalBtn.addEventListener('click', () => forgeOptionsModal.style.display = 'none');
@@ -444,17 +439,13 @@ const init = () => {
     if (event.target == forgeOptionsModal) forgeOptionsModal.style.display = 'none';
   });
 
-  // Prompt Vault
   promptForm.addEventListener('submit', handlePromptFormSubmit);
   promptList.addEventListener('click', handlePromptListClick);
 
-  // Synthesis
   synthesisModeBtn.addEventListener('click', toggleSynthesisMode);
   cancelSynthesisBtn.addEventListener('click', toggleSynthesisMode);
   executeSynthesisBtn.addEventListener('click', executeSynthesis);
 
-
-  // Firestore real-time listeners
   gemsCollection.orderBy('createdAt', 'desc').onSnapshot(snapshot => {
     const allGems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     
@@ -463,16 +454,16 @@ const init = () => {
     
     renderGems(allGems);
     renderReviewItems(reviewGems);
+  }, error => {
+      console.error("Firestore 'gems' listener error: ", error);
   });
 
   promptsCollection.orderBy('createdAt').onSnapshot(snapshot => {
     const prompts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     renderPrompts(prompts);
+  }, error => {
+      console.error("Firestore 'prompts' listener error: ", error);
   });
 };
 
 document.addEventListener('DOMContentLoaded', init);
-
-
-// 개념에 대한 한 문장 정의: 이벤트 위임(Event Delegation)은 여러 자식 요소의 이벤트를 하나의 부모 요소에서 처리하여 성능과 메모리를 최적화하는 기법이다.
-// 이해를 돕는 비유: 반장 한 명이 교실 전체 학생들의 질문을 받아 선생님께 전달하는 것과 같다.
