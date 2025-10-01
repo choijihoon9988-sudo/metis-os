@@ -1,6 +1,7 @@
 // --- Firebase Initialization ---
 const firebaseConfig = {
-  apiKey: "AIzaSyBtgkrF-XLA8GaiMVVlYxdyuwXIn5xWGD4",
+  // *** 여기에 너의 새 API 키를 적용했어 ***
+  apiKey: "AIzaSyDSpMk7hbDUnE1GHIbdit28lHBTGU4XMx0", 
   authDomain: "metis-os-app.firebaseapp.com",
   projectId: "metis-os-app",
   storageBucket: "metis-os-app.appspot.com",
@@ -70,7 +71,8 @@ const render = (gems) => {
 
 // --- API Call with Google Gemini ---
 const callGeminiApi = (gemContent) => {
-  const GEMINI_API_KEY = 'AIzaSyAylLSNAPtfhU0e6ulQQ4OisPbONB5HifM'; //  <-- API 키가 여기에 추가되었어
+  // *** 여기에도 너의 새 API 키를 적용했어 ***
+  const GEMINI_API_KEY = "AIzaSyDSpMk7hbDUnE1GHIbdit28lHBTGU4XMx0"; 
   const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
 
   const prompt = `다음 내용을 비즈니스에 바로 적용할 3가지 구체적인 액션 아이템으로 바꿔줘 (각 항목은 번호로 구분하고, 두 줄씩 띄워서 작성해줘): "${gemContent}"`;
@@ -141,7 +143,6 @@ const handleListClick = async (event) => {
     await gemRef.update({ status: 'forging' });
 
     try {
-      // 이제 실제 Gemini API를 호출해
       const forgedContent = await callGeminiApi(gem.content);
       await gemRef.update({ forgedContent, status: 'idle' });
     } catch (error) {
