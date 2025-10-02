@@ -140,7 +140,7 @@ const renderGemList = (listElement, gemsToRender, emptyMessage) => {
 const renderPrompts = (prompts) => {
   dom.promptList.innerHTML = "";
   if (prompts.length === 0) {
-    dom.promptList.innerHTML = `<li class="empty-message">저장된 프롬프트가 없습니다.</li>`;
+    dom.promptList.innerHTML = `<li class="empty-message">저장된 프롬프트가 없습니다. 나만의 제련 방식을 추가해보세요.</li>`;
     return;
   }
   prompts.forEach(prompt => {
@@ -162,7 +162,7 @@ const renderPrompts = (prompts) => {
  * 리뷰할 Gem의 갯수를 UI에 업데이트합니다.
  */
 const updateReviewIndicator = () => {
-    dom.reviewIndicator.innerHTML = `<span>리뷰할 항목 <strong>${state.reviewGems.length}</strong>개</span>`;
+    dom.reviewIndicator.innerHTML = `<span>리뷰할 원석 <strong>${state.reviewGems.length}</strong>개</span>`;
 };
 
 
@@ -206,7 +206,7 @@ const callGeminiApi = async (prompt) => {
     return data.candidates[0].content.parts[0].text.trim();
   } catch (error) {
     console.error("Gemini API Error:", error);
-    alert(`API 호출에 실패했습니다: ${error.message}`);
+    alert(`요청에 실패했습니다. 잠시 후 다시 시도해주세요. (${error.message})`);
     throw error; // 에러를 상위로 전파하여 후속 처리를 위함
   }
 };
@@ -302,7 +302,7 @@ const handlers = {
       const gemContent = gemDoc.data().content;
       const finalPrompt = promptTemplate 
         ? promptTemplate.replace('{{GEM_CONTENT}}', gemContent)
-        : `다음 내용을 비즈니스에 바로 적용할 3가지 구체적인 액션 아이템으로 바꿔줘 (각 항목은 번호로 구분하고, 두 줄씩 띄워서 작성해줘): "${gemContent}"`;
+        : `다음 아이디어를 비즈니스에 바로 적용할 수 있는 3가지 실행 계획으로 만들어줘. 각 계획은 번호와 함께 설명하고, 명확하게 구분해줘: "${gemContent}"`;
 
       const forgedContent = await callGeminiApi(finalPrompt);
       await gemRef.update({ forgedContent, status: 'idle' });
@@ -340,7 +340,7 @@ const handlers = {
     const promptItem = targetButton.closest('.prompt-list-item');
     const id = promptItem.dataset.id;
 
-    if (action === 'delete-prompt' && confirm('정말 이 프롬프트를 삭제하시겠습니까?')) {
+    if (action === 'delete-prompt' && confirm('이 프롬프트를 정말 삭제하시겠어요?')) {
       promptsCollection.doc(id).delete();
     }
     
@@ -369,11 +369,11 @@ const handlers = {
       
       const gem1 = doc1.data();
       const gem2 = doc2.data();
-      const synthesisPrompt = `두 가지 핵심 아이디어가 있습니다. 1. "${gem1.title}": ${gem1.content} 2. "${gem2.title}": ${gem2.content}. 이 두 아이디어의 공통 원리를 찾아내고, 이들을 통합하여 하나의 새로운 통찰 또는 실행 가능한 프레임워크를 생성해주세요. 결과는 제목과 내용으로 구분하고, 제목은 [융합]이라는 말머리를 붙여줘.`;
+      const synthesisPrompt = `두 아이디어의 핵심 원리를 융합해서 새로운 통찰력을 담은 실행 프레임워크를 만들어줘. 1번 아이디어: "${gem1.content}" (출처: ${gem1.title}). 2번 아이디어: "${gem2.content}" (출처: ${gem2.title}). 결과는 '[융합 인사이트]' 제목과 구체적인 내용으로 나눠서 보여줘.`;
       const synthesizedContent = await callGeminiApi(synthesisPrompt);
       
       const newGem = {
-        title: `[융합] ${gem1.title} & ${gem2.title}`,
+        title: `[융합 인사이트] ${gem1.title} & ${gem2.title}`,
         content: synthesizedContent,
         type: '프레임워크',
         tags: [...new Set([...(gem1.tags || []), ...(gem2.tags || [])])],
@@ -403,9 +403,9 @@ const ui = {
     state.selectedGems = [];
     
     dom.synthesisActionBar.style.display = state.isSynthesisMode ? 'flex' : 'none';
-    dom.synthesisModeBtn.innerHTML = state.isSynthesisMode ? '<i class="ri-close-line"></i> 연결 취소' : '<i class="ri-flow-chart"></i> 지식 연결';
+    dom.synthesisModeBtn.innerHTML = state.isSynthesisMode ? '<i class="ri-close-line"></i> 연결 취소' : '<i class="ri-flow-chart"></i> 원석 연결하기';
     
-    renderGemList(dom.gemsList, state.allGems, '추출된 Gem이 없습니다.');
+    renderGemList(dom.gemsList, state.allGems, '추출된 원석이 없네요. 첫 아이디어를 원석으로 만들어보세요!');
     ui.updateSynthesisUI();
   },
   
@@ -425,9 +425,9 @@ const ui = {
   /** 지식 연결 UI 상태 업데이트 */
   updateSynthesisUI: () => {
     const count = state.selectedGems.length;
-    dom.synthesisStatus.textContent = `선택된 Gem ${count}/2`;
+    dom.synthesisStatus.textContent = `선택한 원석 ${count}/2`;
     dom.executeSynthesisBtn.disabled = count !== 2;
-    dom.executeSynthesisBtn.innerHTML = `연결 실행`;
+    dom.executeSynthesisBtn.innerHTML = `연결하기`;
   },
   
   /** 탭 전환 처리 */
@@ -457,7 +457,7 @@ const ui = {
     dom.forgePromptList.innerHTML = '<div class="spinner"></div>';
     dom.forgeOptionsModal.style.display = 'block';
     
-    let optionsHTML = `<button class="btn btn-secondary forge-option-btn" data-prompt-template="default">기본 프롬프트 (액션 아이템 3가지)</button>`;
+    let optionsHTML = `<button class="btn btn-secondary forge-option-btn" data-prompt-template="default">기본 제련 (실행 아이디어 3가지)</button>`;
     state.prompts.forEach(prompt => {
       optionsHTML += `<button class="btn btn-secondary forge-option-btn" data-prompt-id="${prompt.id}">${prompt.name}</button>`;
     });
@@ -532,8 +532,8 @@ const init = () => {
     const now = new Date();
     state.reviewGems = allGems.filter(gem => gem.reviewAt && gem.reviewAt.toDate() <= now);
     
-    renderGemList(dom.gemsList, state.allGems, '추출된 Gem이 없습니다. 첫 아이디어를 제련해보세요!');
-    renderGemList(dom.reviewList, state.reviewGems, '오늘 리뷰할 아이디어가 없습니다. 🎉');
+    renderGemList(dom.gemsList, state.allGems, '추출된 원석이 없네요. 첫 아이디어를 원석으로 만들어보세요!');
+    renderGemList(dom.reviewList, state.reviewGems, '오늘 리뷰할 원석이 없습니다. 완벽해요! 🎉');
     updateReviewIndicator();
   }, error => console.error("Firestore 'gems' listener error: ", error));
 

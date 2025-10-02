@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metis OS - 지식 제련 시스템</title>
+    <title>Metis OS | 당신의 지식을 제련하세요</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
@@ -30,12 +30,12 @@
         <main class="app-main">
             <section id="extractor-section" class="card">
                 <header class="card-header">
-                    <h2><i class="ri-lightbulb-flash-line"></i> 아이디어 추출 (Extractor)</h2>
-                    <p>책, 아티클, 대화에서 얻은 영감을 '지식의 원석(Gem)'으로 만드세요.</p>
+                    <h2><i class="ri-lightbulb-flash-line"></i> 지식 원석 추출하기</h2>
+                    <p>책, 아티클, 대화 속 영감을 지식 원석으로 만들어 보세요.</p>
                 </header>
                 <form id="gem-extractor-form">
                     <div class="form-group">
-                        <label for="gem-source">출처 / 제목</label>
+                        <label for="gem-source">출처 또는 제목</label>
                         <input type="text" id="gem-source" name="gemSource" placeholder="예: 클린 아키텍처, 3강 강의 노트" required>
                     </div>
                     <div class="form-group-inline">
@@ -55,25 +55,25 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="gem-content">추출한 핵심 아이디어 (Gem)</label>
-                        <textarea id="gem-content" name="gemContent" rows="4" placeholder="가장 중요하다고 생각하는 핵심 문장이나 개념을 입력하세요." required></textarea>
+                        <label for="gem-content">핵심 아이디어</label>
+                        <textarea id="gem-content" name="gemContent" rows="4" placeholder="기억하고 싶은 핵심 문장이나 개념을 입력하세요." required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary btn-lg btn-block">
-                        <i class="ri-sparkling-2-line"></i> 원석 추출하기
+                        <i class="ri-sparkling-2-line"></i> 원석으로 추출하기
                     </button>
                 </form>
             </section>
 
             <nav class="tabs">
-                <a href="#review-gems" class="tab active" data-tab="review"><i class="ri-time-line"></i> 오늘 리뷰할 Gem</a>
-                <a href="#all-gems" class="tab" data-tab="all"><i class="ri-list-check-3"></i> 전체 Gem 목록</a>
+                <a href="#review-gems" class="tab active" data-tab="review"><i class="ri-time-line"></i> 오늘 리뷰할 원석</a>
+                <a href="#all-gems" class="tab" data-tab="all"><i class="ri-list-check-3"></i> 모든 원석 보기</a>
             </nav>
 
             <section id="review-gems" class="tab-content active">
                 <div class="section-header">
-                    <h3>간격 반복(Spaced Repetition)을 통해 지식을 장기기억으로 전환하세요.</h3>
+                    <h3>간격 반복 학습으로 지식을 완전한 내 것으로 만드세요.</h3>
                     <div id="review-indicator" class="indicator">
-                        <span>리뷰할 항목 <strong>0</strong>개</span>
+                        <span>리뷰할 원석 <strong>0</strong>개</span>
                     </div>
                 </div>
                 <ul id="review-list" class="gem-list">
@@ -82,18 +82,18 @@
 
             <section id="all-gems" class="tab-content">
                 <div class="section-header">
-                    <h3>추출된 모든 지식의 원석들입니다.</h3>
+                    <h3>지금까지 추출한 모든 지식 원석입니다.</h3>
                     <div class="actions">
                         <button id="synthesis-mode-btn" class="btn btn-secondary">
-                            <i class="ri-flow-chart"></i> 지식 연결
+                            <i class="ri-flow-chart"></i> 원석 연결하기
                         </button>
                     </div>
                 </div>
                  <div id="synthesis-action-bar" class="synthesis-bar" style="display: none;">
-                    <p><i class="ri-information-line"></i> 연결할 Gem 2개를 선택하세요.</p>
+                    <p><i class="ri-information-line"></i> 연결할 원석 2개를 선택해주세요.</p>
                     <div class="synthesis-bar-actions">
-                        <span id="synthesis-status">선택된 Gem 0/2</span>
-                        <button id="execute-synthesis-btn" class="btn btn-primary" disabled>연결 실행</button>
+                        <span id="synthesis-status">선택한 원석 0/2</span>
+                        <button id="execute-synthesis-btn" class="btn btn-primary" disabled>연결하기</button>
                         <button id="cancel-synthesis-btn" class="btn">취소</button>
                     </div>
                 </div>
@@ -106,13 +106,13 @@
     <div id="prompt-vault-modal" class="modal">
         <div class="modal-content">
             <header class="modal-header">
-                <h2><i class="ri-database-2-line"></i> 프롬프트 저장소</h2>
+                <h2><i class="ri-database-2-line"></i> 나만의 프롬프트 저장소</h2>
                 <button id="close-modal-btn" class="btn btn-icon close-btn" aria-label="닫기">&times;</button>
             </header>
             <div class="modal-body">
                 <article class="card">
                     <header class="card-header">
-                        <h3>나만의 제련 프롬프트 추가</h3>
+                        <h3>새 프롬프트 만들기</h3>
                     </header>
                     <form id="prompt-form">
                         <input type="hidden" id="prompt-id">
@@ -123,9 +123,9 @@
                         <div class="form-group">
                             <label for="prompt-content">프롬프트 내용</label>
                             <textarea id="prompt-content" rows="4" placeholder="실행할 프롬프트 내용을 입력하세요. (예: 다음 내용을 5살 아이도 이해하게 설명해줘: {{GEM_CONTENT}})" required></textarea>
-                            <small><code>{{GEM_CONTENT}}</code>는 제련 시 실제 아이디어 내용으로 자동 대체됩니다.</small>
+                            <small><code>{{GEM_CONTENT}}</code> 위치에 아이디어 내용이 자동으로 입력돼요.</small>
                         </div>
-                        <button type="submit" class="btn btn-primary">프롬프트 저장</button>
+                        <button type="submit" class="btn btn-primary">저장하기</button>
                     </form>
                 </article>
                 <article class="card">
@@ -142,7 +142,7 @@
     <div id="forge-options-modal" class="modal">
         <div class="modal-content">
             <header class="modal-header">
-                <h2><i class="ri-fire-line"></i> 제련 방식 선택</h2>
+                <h2><i class="ri-fire-line"></i> 어떻게 제련할까요?</h2>
                 <button id="close-forge-modal-btn" class="btn btn-icon close-btn" aria-label="닫기">&times;</button>
             </header>
             <div class="modal-body" id="forge-prompt-list">
